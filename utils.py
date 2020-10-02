@@ -1,3 +1,4 @@
+import socket
 """
 Source: utils.py
 
@@ -37,8 +38,8 @@ def startTerminal():
 
 # Function: start_terminal
 # Designer: Alex Xia
-# Programmer: Keir Forster
-# Date: Nov 4 2017
+# Programmer: Alex Xia
+# Date: Oct 1 2020
 # 
 # Starts the loop which prompts and checks for user input.
 # Then depending on input('start' or 'exit') calls related GPS connection function
@@ -70,7 +71,7 @@ def waitForUserInput():
 # Function: printWelcomePrompt
 # Designer: Alex Xia
 # Programmer: Alex Xia
-# Date: Nov 4 2017
+# Date: Oct 1 2020
 # Arguments: firstRun - boolean which determines if 
 #              it's user's first time running application
 # 
@@ -92,3 +93,10 @@ def printWelcomePrompt(firstRun):
         print("* {:<69}*".format("Enter 'exit' to exit this application"))
         print("* {:<69}*".format("Or, press the hotkey 'Ctrl+c' to stop a running connection."))
         print("*{:*<70}*".format("*"))
+
+
+def createTcpSocket(bindPort=None):
+    newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if bindPort != None:
+        newSocket.bind(('', bindPort))
+    return newSocket

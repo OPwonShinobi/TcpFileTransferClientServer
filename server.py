@@ -35,7 +35,19 @@ def main():
     setup_server()
 
 def setup_server():
-    print('Server started on port ' + str(utils.SERVER_COMM_PORT));
+    listenSocket = utils.createTcpSocket(utils.SERVER_COMM_PORT)
+    listenSocket.listen(5)                           
+    print('Server started listening on port ' + str(utils.SERVER_COMM_PORT));
+
+    while True:
+        connection, address = listenSocket.accept()
+        print('New client connection:', address)
+        while True:
+            data = connection.recv(1024)
+            if not data: 
+                break
+            connection.send(b'Echo => ' + data)   # send data using "b" to format string as byte literal (ASCII)
+        connection.close()
 
 
 # run main

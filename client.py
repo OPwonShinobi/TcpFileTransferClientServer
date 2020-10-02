@@ -28,7 +28,7 @@ Function: main
 returns: void
 arguments: string[] argv - string array of command line arguments
 """
-HELP_CLI=sys.argv[0] + ' [-h] -i <server ip>'
+HELP_CLI=sys.argv[0] + ' -i <server ip>'
 HELP_CMD='type dir to list files, exit to shutdown client'
 
 def main():
@@ -51,8 +51,11 @@ def main():
     else:
         print("Please enter server ip: " + ip);
 
+# ip : string, ipv4 address of server
+# port : int, port num server is listening on
+def setup_client(ip):
+    connectSocket = utils.createTcpSocket()
+    connectSocket.connect((ip, utils.SERVER_COMM_PORT))
 
-def setup_client():
-    pass
 # run main
 main()
