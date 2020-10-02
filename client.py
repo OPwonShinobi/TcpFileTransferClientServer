@@ -1,5 +1,6 @@
 # from utils import startTerminal
 import sys, getopt
+import utils
 """
 Source: client.py
 This is a terminal client for linux OS's, to transfer files across a local network
@@ -27,28 +28,31 @@ Function: main
 returns: void
 arguments: string[] argv - string array of command line arguments
 """
-HELP_CLI=sys.argv[0] + ' [-h] -i <server ip> -p <server port>'
+HELP_CLI=sys.argv[0] + ' [-h] -i <server ip>'
 HELP_CMD='type dir to list files, exit to shutdown client'
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:],'i:p:',["ip=","port="])
+        opts, args = getopt.getopt(sys.argv[1:],'i:',["ip="])
     except getopt.GetoptError:
         print(HELP_CLI)
         sys.exit(2)
-
     if len(opts) == 0:
         print(HELP_CLI)
         sys.exit()
+    
+    ip=''
     for opt, arg in opts:
         if opt in ("-i", "--ip"):
             ip = arg
-        elif opt in ("-p", "--port"):
-            port = int(arg)
 
-    print('ip ' + ip)
-    print('port ' + str(port))
+    if ip != '':
+        setup_client(ip)
+    else:
+        print("Please enter server ip: " + ip);
 
 
+def setup_client():
+    pass
 # run main
 main()
