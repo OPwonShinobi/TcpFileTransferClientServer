@@ -27,46 +27,13 @@ Programmer: Alex Xia
 
 SERVER_COMM_PORT=7005
 SERVER_TX_PORT=7006
-# Function: start_terminal
-# Designer: Alex Xia
-# Programmer: ALex Xia
-# Date: Oct 1 2020
-# 
-# Bring program into state which waits for user input
-def startTerminal():
-    waitForUserInput()
+PORT_X=8888
 
-# Function: start_terminal
-# Designer: Alex Xia
-# Programmer: Alex Xia
-# Date: Oct 1 2020
-# 
-# Starts the loop which prompts and checks for user input.
-# Then depending on input('start' or 'exit') calls related GPS connection function
-def waitForUserInput():
-    printWelcomePrompt(True)
-    while True:
-        try:
-            userInput = input(">>> ")
-            validInput=True
-            if userInput.isalpha():
-                cmd = userInput.upper()
-                if cmd == "GET":
-                    pass
-                elif cmd == "SEND":
-                    pass    
-            else:
-                validInput=False
-            
-            if not validInput:
-                print(">>> Invalid input, please enter valid cmd")
-            
-        except KeyboardInterrupt:
-            print("\n")
-            printWelcomePrompt(False)    
-        except Exception as e: 
-            print("Warning: " + str(e))
-            printWelcomePrompt(False)    
+# flags, strings used so dont have to call str on it every time
+GETALL='0'
+GET='1'
+SEND='2'
+CMDS=('GETALL','GET','SEND')
 
 # Function: printWelcomePrompt
 # Designer: Alex Xia
@@ -97,6 +64,53 @@ def printWelcomePrompt(firstRun):
 
 def createTcpSocket(bindPort=None):
     newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if bindPort != None:
+    if bindPort is not None:
+        newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         newSocket.bind(('', bindPort))
     return newSocket
+
+# They do not necessarily handle all the bytes you hand them (or expect from them),
+#  In general, they return when the associated network buffers have been filled (send) or emptied (recv). They then tell you how many bytes they handled. It is your responsibility to call them again until your message has been completely dealt with.
+def sendStr(sendSocket,str):
+    total_sent = 0
+    total = len(str)
+    byte_str = str.encode()
+    buffer_count=0
+    while total_sent < total:
+        bytes_sent = sendSocket.send(byte_str[total_sent:])
+        if bytes_sent == 0:
+            raise RuntimeError("sendStr socket disconnected")
+        total_sent += bytes_sent
+        buffer_count+=1
+    print('bytes sent:', total_sent, ' buffers used:', buffer_count)
+
+# we can get away with read chunk == 0 here cause short msges, prob wont get delay
+def recvStr(recvSocket,msgLen):
+    chunks = []
+    bytes_read = 0
+    buffer_count = 0
+    print('bytes to read:', msgLen)
+    while bytes_read < msgLen:
+        chunk = recvSocket.recv(2048)
+        # b'' == connection broke, stop reading
+        if chunk == b'':
+            print('Socket disconnected!')
+            break
+        chunks.append(chunk)
+        bytes_read += len(chunk)
+        buffer_count+=1
+    print('total bytes read:', msgLen, ' buffers used', buffer_count)
+    return b''.join(chunks).decode()
+
+
+def createCmdPacket(flag,msg=''):
+    paddedLength = '{:0>3}'.format(len(msg))
+    return flag + paddedLength + msg
+
+def createDataPacket(msg):
+    paddedLength = '{:0>3}'.format(len(msg))
+    return paddedLength + msg
+    
+# we expect socket to close here!
+def sendFile(sendSocket,file):
+    pass
