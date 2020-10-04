@@ -57,8 +57,8 @@ def setup_server():
             dataSocket.connect((clientIp, utils.PORT_X))
 
             # cant use utils.readCmdPacket(controlSocket), already got 1 byte to test client connection
-            msgLen=int(recvStr(controlSocket,3))
-            filename=recvStr(controlSocket, msgLen)
+            msgLen=int(utils.recvStr(controlSocket,3))
+            filename=utils.recvStr(controlSocket, msgLen)
 
             if cmd == utils.GETALL:
                 handleGetAll(dataSocket)

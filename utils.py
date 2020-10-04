@@ -90,7 +90,7 @@ def recvStr(recvSocket,msgLen):
     chunks = []
     bytes_read = 0
     while bytes_read < msgLen:
-        chunk = recvSocket.recv(BUFFER_SIZE)
+        chunk = recvSocket.recv(min(BUFFER_SIZE,msgLen))
         # python empty str is false, empty chunk == connection broke, stop reading
         if not chunk:
             raise RuntimeError('recvStr socket disconnected while reading!')
