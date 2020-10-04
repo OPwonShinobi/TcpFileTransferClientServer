@@ -35,6 +35,10 @@ GET='1'
 SEND='2'
 CMDS=('GETALL','GET','SEND')
 
+# misc
+NOT_FOUND='/404/'
+BUFFER_SIZE=8192
+
 # Function: printWelcomePrompt
 # Designer: Alex Xia
 # Programmer: Alex Xia
@@ -75,42 +79,80 @@ def sendStr(sendSocket,str):
     total_sent = 0
     total = len(str)
     byte_str = str.encode()
-    buffer_count=0
     while total_sent < total:
         bytes_sent = sendSocket.send(byte_str[total_sent:])
         if bytes_sent == 0:
             raise RuntimeError("sendStr socket disconnected")
         total_sent += bytes_sent
-        buffer_count+=1
-    print('bytes sent:', total_sent, ' buffers used:', buffer_count)
 
 # we can get away with read chunk == 0 here cause short msges, prob wont get delay
 def recvStr(recvSocket,msgLen):
     chunks = []
     bytes_read = 0
-    buffer_count = 0
-    print('bytes to read:', msgLen)
     while bytes_read < msgLen:
-        chunk = recvSocket.recv(2048)
-        # b'' == connection broke, stop reading
-        if chunk == b'':
-            print('Socket disconnected!')
+        chunk = recvSocket.recv(BUFFER_SIZE)
+        # python empty str is false, empty chunk == connection broke, stop reading
+        if not chunk:
+            print('recvStr socket disconnected while reading!')
             break
         chunks.append(chunk)
         bytes_read += len(chunk)
-        buffer_count+=1
-    print('total bytes read:', msgLen, ' buffers used', buffer_count)
     return b''.join(chunks).decode()
 
 
-def createCmdPacket(flag,msg=''):
-    paddedLength = '{:0>3}'.format(len(msg))
-    return flag + paddedLength + msg
+def sendCmdPacket(sendSocket,flag,msg=''):
+    msgStr=str(msg)
+    paddedLength = '{:0>3}'.format(len(msgStr))
+    packet=flag + paddedLength + msgStr
+    sendStr(sendSocket, packet)
 
-def createDataPacket(msg):
-    paddedLength = '{:0>3}'.format(len(msg))
-    return paddedLength + msg
-    
-# we expect socket to close here!
-def sendFile(sendSocket,file):
-    pass
+def readCmdPacket(readSocket):
+    flag =recvStr(recvSocket,1)
+    msg = readDataPacket(readSocket)
+    return (flag, msg)
+
+def sendDataPacket(sendSocket, msg):
+    msgStr=str(msg)
+    paddedLength = '{:0>3}'.format(len(msgStr))
+    packet=paddedLength + msgStr
+    sendStr(sendSocket, packet)
+
+def readDataPacket(readSocket):
+    msgLen=int(recvStr(recvSocket,3).decode())
+    return recvStr(recvSocket, msgLen)
+
+# does not check file exist!, thats handled in handleGet & handleSend methods
+# cannot use file.read as we dont know/care about file size. Prog should work regardless of filesize
+def sendFile(sendSocket,filename):
+    # read binary mode
+    with open('./files/'+filename,'rb') as file
+        filesize=os.path.getsize('./files/'+filename,'rb')
+        
+        sendDataPacket(sendSocket, filesize)
+        
+        if filesize != 0:
+            while True:
+                chunk = file.read(utils.BUFFER_SIZE)
+                if not chunk:
+                    break
+                sendStr(sendSocket, chunk)
+
+def recvFile(recvSocket,filename):
+    # create or clear file
+
+    filesize=int(readDataPacket(recvSocket))
+
+    with open('./files/'+filename,'w') as file
+        file.write('')
+        
+    if filesize == 0:
+        return
+    with open('./files/'+filename,'a') as file
+        bytes_read = 0
+        while bytes_read < filesize:
+            chunk = recvSocket.recv(BUFFER_SIZE)
+            if not chunk:
+                print('recvFile socket disconnected while reading!')
+                break
+            file.write(chunk.decode())
+            bytes_read += len(chunk)

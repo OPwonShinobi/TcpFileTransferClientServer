@@ -46,35 +46,26 @@ def setup_server():
         print('New client:', clientIpPort)
         while isConnected:
             data = controlSocket.recv(1)
-            if len(data) == 0:
+            if not data:
                 print ('client disconnected:', clientIpPort)
                 isConnected=False
                 break
             cmd = data.decode()
-            status='Client ', clientIp, ' requested ', utils.CMDS[int(cmd)]
-            print(status)
+            print('Client ', clientIp, ' requested ', utils.CMDS[int(cmd)])
 
             dataSocket = utils.createTcpSocket(utils.SERVER_TX_PORT)
             dataSocket.connect((clientIp, utils.PORT_X))
 
-            data = controlSocket.recv(3)
-            msglen = int(data.decode())
+            cmd, filename= utils.readCmdPacket(controlSocket)
 
-            packet=''
             if cmd == utils.GETALL:
-                filenames = ', '.join(os.listdir('./files'))
-                packet=utils.createDataPacket(filenames) 
+                handleGetAll(dataSocket)
             elif cmd == utils.GET:
-                filename=utils.recvStr(controlSocket, msglen)
-                # todo, dynamic packet
+                handleGet(dataSocket, filename)                
             elif cmd == utils.SEND:
-                pass
+                handleSend(dataSocket, filename)
 
-            utils.sendStr(dataSocket, packet)
             dataSocket.close()
-            print('after shutdown')    
-
-            # controlSocket.close()
     except KeyboardInterrupt:
         print('\nexit called.')
     except Exception as e: 
@@ -83,5 +74,19 @@ def setup_server():
         listenSocket.close()
         if controlSocket is not None:
             controlSocket.close()
+
+def handleGetAll(dataSocket):
+    filenames = ', '.join(os.listdir('./files'))
+    utils.sendDataPacket(dataSocket,filenames)
+
+def handleGet(dataSocket, filename):
+    if not os.path.isfile('./files/' + filename):
+        utils.sendDataPacket(dataSocket, utils.NOT_FOUND)
+    else:
+        utils.sendFile(dataSocket, filename)
+
+def handleSend(dataSocket, filename):
+    pass
+
 # run main
 main()
