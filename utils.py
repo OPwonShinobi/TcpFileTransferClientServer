@@ -93,8 +93,7 @@ def recvStr(recvSocket,msgLen):
         chunk = recvSocket.recv(BUFFER_SIZE)
         # python empty str is false, empty chunk == connection broke, stop reading
         if not chunk:
-            print('recvStr socket disconnected while reading!')
-            break
+            raise RuntimeError('recvStr socket disconnected while reading!')
         chunks.append(chunk)
         bytes_read += len(chunk)
     return b''.join(chunks).decode()
@@ -107,7 +106,7 @@ def sendCmdPacket(sendSocket,flag,msg=''):
     sendStr(sendSocket, packet)
 
 def readCmdPacket(readSocket):
-    flag =recvStr(recvSocket,1)
+    flag =recvStr(readSocket,1)
     msg = readDataPacket(readSocket)
     return (flag, msg)
 
@@ -118,8 +117,8 @@ def sendDataPacket(sendSocket, msg):
     sendStr(sendSocket, packet)
 
 def readDataPacket(readSocket):
-    msgLen=int(recvStr(recvSocket,3).decode())
-    return recvStr(recvSocket, msgLen)
+    msgLen=int(recvStr(readSocket,3))
+    return recvStr(readSocket, msgLen)
 
 # does not check file exist!, thats handled in handleGet & handleSend methods
 # cannot use file.read as we dont know/care about file size. Prog should work regardless of filesize

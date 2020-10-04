@@ -94,10 +94,10 @@ def handleGet(controlSocket, cmd):
     isGetAll= cmd.upper() == 'GET'
     filename=''
     if isGetAll:
-        utils.sendCmdPacket(utils.GETALL)
+        utils.sendCmdPacket(controlSocket, utils.GETALL)
     else:
         filename=cmd[3:].strip()
-        utils.sendCmdPacket(utils.GET,filename)
+        utils.sendCmdPacket(controlSocket, utils.GET, filename)
 
     dataSocket, serverIpPort = listenSocket.accept()
 
