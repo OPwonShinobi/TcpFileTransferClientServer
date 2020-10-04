@@ -125,7 +125,7 @@ def readDataPacket(readSocket):
 # cannot use file.read as we dont know/care about file size. Prog should work regardless of filesize
 def sendFile(sendSocket,filename):
     # read binary mode
-    with open('./files/'+filename,'rb') as file
+    with open('./files/'+filename,'rb') as file:
         filesize=os.path.getsize('./files/'+filename,'rb')
         
         sendDataPacket(sendSocket, filesize)
@@ -142,12 +142,12 @@ def recvFile(recvSocket,filename):
 
     filesize=int(readDataPacket(recvSocket))
 
-    with open('./files/'+filename,'w') as file
+    with open('./files/'+filename,'w') as file:
         file.write('')
         
     if filesize == 0:
         return
-    with open('./files/'+filename,'a') as file
+    with open('./files/'+filename,'a') as file:
         bytes_read = 0
         while bytes_read < filesize:
             chunk = recvSocket.recv(BUFFER_SIZE)
