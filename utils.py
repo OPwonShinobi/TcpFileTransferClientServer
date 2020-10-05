@@ -147,7 +147,7 @@ def recvFile(recvSocket,filename):
     with open('./files/'+filename,'w') as file:
         file.write('')
         
-    print('File size on server: ',filesize)
+    print('Sender\'s file size: ',filesize)
     if filesize == 0:
         return
 
