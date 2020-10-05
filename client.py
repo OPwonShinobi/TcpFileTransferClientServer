@@ -92,9 +92,8 @@ def handleGet(controlSocket, cmd):
     listenSocket = utils.createTcpSocket(utils.PORT_X)
     listenSocket.listen(1)
     packet=''
-    isGetAll= cmd.upper() == 'GET'
-    filename=''
-    if isGetAll:
+    filename=cmd[3:].strip()
+    if not filename:
         utils.sendCmdPacket(controlSocket, utils.GETALL)
     else:
         filename=cmd[3:].strip()
@@ -103,7 +102,7 @@ def handleGet(controlSocket, cmd):
     dataSocket, serverIpPort = listenSocket.accept()
     data = utils.readDataPacket(dataSocket)
 
-    if isGetAll:
+    if not filename:
         # data is list of filenames
         print(data)
     else:
@@ -124,7 +123,14 @@ def handleSend(controlSocket, cmd):
     elif not os.path.isfile('./files/' + filename):
         print('File not found, cannot send: ', filename)
     else:
-        utils.sendFile(controlSocket, filename)
+        listenSocket = utils.createTcpSocket(utils.PORT_X)
+        listenSocket.listen(1)
+        
+        utils.sendCmdPacket(controlSocket, utils.SEND, filename)
+        
+        dataSocket, serverIpPort = listenSocket.accept()
+        utils.sendFile(dataSocket, filename)
+        
         print('File sent to server')
 # run main
 main()

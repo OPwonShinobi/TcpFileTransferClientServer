@@ -151,13 +151,13 @@ def recvFile(recvSocket,filename):
     if filesize == 0:
         return
 
-    with open('./files/'+filename,'a') as file:
+    with open('./files/'+filename,'ab') as file:
         bytes_read = 0
         while bytes_read < filesize:
             chunk = recvSocket.recv(BUFFER_SIZE)
             if not chunk:
                 print('recvFile socket disconnected while reading!')
                 break
-            file.write(chunk.decode())
+            file.write(chunk)
             bytes_read += len(chunk)
     print('File saved: /files/'+filename)
