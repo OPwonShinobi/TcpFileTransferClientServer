@@ -39,6 +39,7 @@ CMDS=('GETALL','GET','SEND')
 
 # misc
 NOT_FOUND='/404/'
+FOUND='/200/'
 BUFFER_SIZE=8192
 
 # Function: printWelcomePrompt
@@ -127,22 +128,22 @@ def readDataPacket(readSocket):
 def sendFile(sendSocket,filename):
     # read binary mode
     with open('./files/'+filename,'rb') as file:
-        filesize=os.path.getsize('./files/'+filename,'rb')
+        filesize=os.path.getsize('./files/'+filename)
         
         sendDataPacket(sendSocket, filesize)
         
         if filesize != 0:
-            while True:
-                chunk = file.read(utils.BUFFER_SIZE)
+            bytes_sent=0
+            while bytes_sent < filesize:
+                chunk=file.read(BUFFER_SIZE)
                 if not chunk:
-                    break
-                sendStr(sendSocket, chunk)
+                    raise RuntimeError("sendFile socket disconnected while sending")
+                bytes_sent+=sendSocket.send(chunk)
 
 def recvFile(recvSocket,filename):
-    # create or clear file
-
     filesize=int(readDataPacket(recvSocket))
 
+    # create or clear file
     with open('./files/'+filename,'w') as file:
         file.write('')
         

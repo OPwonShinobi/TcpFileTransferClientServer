@@ -85,6 +85,7 @@ def handleGet(dataSocket, filename):
     if not os.path.isfile('./files/' + filename):
         utils.sendDataPacket(dataSocket, utils.NOT_FOUND)
     else:
+        utils.sendDataPacket(dataSocket, utils.FOUND)
         utils.sendFile(dataSocket, filename)
 
 def handleSend(dataSocket, filename):
