@@ -147,10 +147,10 @@ def recvFile(recvSocket,filename):
     with open('./files/'+filename,'w') as file:
         file.write('')
         
+    print('File size on server: ',filesize)
     if filesize == 0:
         return
 
-    print('Get size: ',filesize)
     with open('./files/'+filename,'a') as file:
         bytes_read = 0
         while bytes_read < filesize:
