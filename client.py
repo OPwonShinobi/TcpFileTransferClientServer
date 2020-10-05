@@ -51,8 +51,6 @@ def main():
 
     if ip != '':
         setup_client(ip)
-    else:
-        print('Please enter server ip: ' + ip);
 
 # ip : string, ipv4 address of server
 # port : int, port num server is listening on
@@ -110,16 +108,15 @@ def handleGet(controlSocket, cmd):
         if data == utils.NOT_FOUND:
             print('File not found on server: ', filename)
         if data == utils.FOUND:
-            print('Fetching', filename,'...')
+            print('Fetching', filename)
             utils.recvFile(dataSocket, filename)
     dataSocket.close()
     listenSocket.close()
-    # controlSocket.close()
 
 def handleSend(controlSocket, cmd):
     filename=cmd[4:].strip()
     if not filename:
-        print(os.listdir('./files'))
+        print('  '.join(os.listdir('./files')))
     elif not os.path.isfile('./files/' + filename):
         print('File not found, cannot send: ', filename)
     else:
