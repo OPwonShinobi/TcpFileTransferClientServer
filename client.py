@@ -103,7 +103,6 @@ def handleGet(controlSocket, cmd):
         utils.sendCmdPacket(controlSocket, utils.GET, filename)
 
     dataSocket, serverIpPort = listenSocket.accept()
-
     data = utils.readDataPacket(dataSocket)
 
     if isGetAll:
@@ -126,5 +125,6 @@ def handleSend(controlSocket, cmd):
         print('File not found, cannot send: ', filename)
     else:
         utils.sendFile(controlSocket, filename)
+        print('File sent to server')
 # run main
 main()

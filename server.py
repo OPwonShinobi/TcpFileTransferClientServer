@@ -89,7 +89,7 @@ def handleGet(dataSocket, filename):
         utils.sendFile(dataSocket, filename)
 
 def handleSend(dataSocket, filename):
-    pass
+    utils.recvFile(dataSocket, filename)
 
 # run main
 main()
