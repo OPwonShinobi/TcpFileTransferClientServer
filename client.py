@@ -119,10 +119,10 @@ def handleGet(controlSocket, cmd):
 
 def handleSend(controlSocket, cmd):
     filename=cmd[4:].strip()
-    if not os.path.isfile('./files/' + filename):
-        print('File not found, cannot send: ', filename)
-    elif not filename:
+    if not filename:
         print(os.listdir('./files'))
+    elif not os.path.isfile('./files/' + filename):
+        print('File not found, cannot send: ', filename)
     else:
         utils.sendFile(controlSocket, filename)
         print('File sent to server')
