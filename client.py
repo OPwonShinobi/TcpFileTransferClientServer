@@ -1,5 +1,8 @@
 # from utils import startTerminal
-import sys, getopt, os, traceback
+import sys
+import getopt
+import os
+import traceback
 import utils
 """
 Source: client.py
