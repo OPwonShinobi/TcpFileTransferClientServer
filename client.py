@@ -73,8 +73,6 @@ def userInputLoop(ip):
                 handleGet(controlSocket, userInput)
             elif cmd[0:4] == 'SEND':
                 handleSend(controlSocket, userInput)
-            elif cmd[0:2] == ('LS'):
-                print(os.listdir('./files'))
             elif cmd == 'EXIT':
                 print('exit called.')
                 break
@@ -123,6 +121,8 @@ def handleSend(controlSocket, cmd):
     filename=cmd[3:].strip()
     if not os.path.isfile('./files/' + filename):
         print('File not found, cannot send: ', filename)
+    elif not filename:
+        print(os.listdir('./files'))
     else:
         utils.sendFile(controlSocket, filename)
         print('File sent to server')
