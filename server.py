@@ -86,7 +86,7 @@ def handleGet(dataSocket, filename):
         utils.sendDataPacket(dataSocket, utils.NOT_FOUND)
     else:
         utils.sendDataPacket(dataSocket, utils.FOUND)
-        utils.sendFile(dataSocket, filename)
+        # utils.sendFile(dataSocket, filename)
 
 def handleSend(dataSocket, filename):
     pass

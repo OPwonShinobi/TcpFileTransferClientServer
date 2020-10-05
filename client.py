@@ -114,7 +114,8 @@ def handleGet(controlSocket, cmd):
         if data == utils.NOT_FOUND:
             print('File not found on server: ', filename)
         if data == utils.FOUND:
-            utils.recvFile(dataSocket, filename)
+            print('Fetching', filename,'...')
+            # utils.recvFile(dataSocket, filename)
     dataSocket.close()
     listenSocket.close()
     # controlSocket.close()
