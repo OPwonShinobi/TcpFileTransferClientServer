@@ -131,31 +131,33 @@ def sendFile(sendSocket,filename):
         filesize=os.path.getsize('./files/'+filename)
         
         sendDataPacket(sendSocket, filesize)
-        print(filesize)        
-        # if filesize != 0:
-        #     bytes_sent=0
-        #     while bytes_sent < filesize:
-        #         chunk=file.read(BUFFER_SIZE)
-        #         if not chunk:
-        #             raise RuntimeError("sendFile socket disconnected while sending")
-        #         bytes_sent+=sendSocket.send(chunk)
+        if filesize != 0:
+            bytes_sent=0
+            while bytes_sent < filesize:
+                chunk=file.read(BUFFER_SIZE)
+                if not chunk:
+                    raise RuntimeError("sendFile socket disconnected while sending")
+                bytes_sent+=sendSocket.send(chunk)
+        print('File sent, bytes',filesize)
 
 def recvFile(recvSocket,filename):
     filesize=int(readDataPacket(recvSocket))
-    print(filesize)        
-    
+
     # create or clear file
-    # with open('./files/'+filename,'w') as file:
-    #     file.write('')
+    with open('./files/'+filename,'w') as file:
+        file.write('')
         
-    # if filesize == 0:
-    #     return
-    # with open('./files/'+filename,'a') as file:
-    #     bytes_read = 0
-    #     while bytes_read < filesize:
-    #         chunk = recvSocket.recv(BUFFER_SIZE)
-    #         if not chunk:
-    #             print('recvFile socket disconnected while reading!')
-    #             break
-    #         file.write(chunk.decode())
-    #         bytes_read += len(chunk)
+    if filesize == 0:
+        return
+
+    print('Get size: ',filesize)
+    with open('./files/'+filename,'a') as file:
+        bytes_read = 0
+        while bytes_read < filesize:
+            chunk = recvSocket.recv(BUFFER_SIZE)
+            if not chunk:
+                print('recvFile socket disconnected while reading!')
+                break
+            file.write(chunk.decode())
+            bytes_read += len(chunk)
+    print('File saved: /files/'+filename)
