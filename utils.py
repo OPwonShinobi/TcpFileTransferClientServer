@@ -71,8 +71,8 @@ def printWelcomePrompt(firstRun):
 
 def createTcpSocket(bindPort=None):
     newSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     if bindPort is not None:
-        newSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         newSocket.bind(('', bindPort))
     return newSocket
 
@@ -131,30 +131,31 @@ def sendFile(sendSocket,filename):
         filesize=os.path.getsize('./files/'+filename)
         
         sendDataPacket(sendSocket, filesize)
-        
-        if filesize != 0:
-            bytes_sent=0
-            while bytes_sent < filesize:
-                chunk=file.read(BUFFER_SIZE)
-                if not chunk:
-                    raise RuntimeError("sendFile socket disconnected while sending")
-                bytes_sent+=sendSocket.send(chunk)
+        print(filesize)        
+        # if filesize != 0:
+        #     bytes_sent=0
+        #     while bytes_sent < filesize:
+        #         chunk=file.read(BUFFER_SIZE)
+        #         if not chunk:
+        #             raise RuntimeError("sendFile socket disconnected while sending")
+        #         bytes_sent+=sendSocket.send(chunk)
 
 def recvFile(recvSocket,filename):
     filesize=int(readDataPacket(recvSocket))
-
+    print(filesize)        
+    
     # create or clear file
-    with open('./files/'+filename,'w') as file:
-        file.write('')
+    # with open('./files/'+filename,'w') as file:
+    #     file.write('')
         
-    if filesize == 0:
-        return
-    with open('./files/'+filename,'a') as file:
-        bytes_read = 0
-        while bytes_read < filesize:
-            chunk = recvSocket.recv(BUFFER_SIZE)
-            if not chunk:
-                print('recvFile socket disconnected while reading!')
-                break
-            file.write(chunk.decode())
-            bytes_read += len(chunk)
+    # if filesize == 0:
+    #     return
+    # with open('./files/'+filename,'a') as file:
+    #     bytes_read = 0
+    #     while bytes_read < filesize:
+    #         chunk = recvSocket.recv(BUFFER_SIZE)
+    #         if not chunk:
+    #             print('recvFile socket disconnected while reading!')
+    #             break
+    #         file.write(chunk.decode())
+    #         bytes_read += len(chunk)
