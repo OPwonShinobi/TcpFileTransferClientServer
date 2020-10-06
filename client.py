@@ -32,7 +32,6 @@ returns: void
 arguments: string[] argv - string array of command line arguments
 """
 HELP_CLI=sys.argv[0] + ' -i <server ip>'
-HELP_CMD='type dir to list files, exit to shutdown client'
 
 def main():
     try:
@@ -50,27 +49,26 @@ def main():
             ip = arg
 
     if ip != '':
-        setup_client(ip)
+        userInputLoop(ip)
 
 # ip : string, ipv4 address of server
 # port : int, port num server is listening on
-def setup_client(ip):
-    userInputLoop(ip)
-
 # loop has diff get & send behaviour between server & client
 def userInputLoop(ip):
-    # printWelcomePrompt(True)
     controlSocket = utils.createTcpSocket()
-    controlSocket.connect((ip, utils.SERVER_COMM_PORT))
     try:
+        controlSocket.connect((ip, utils.SERVER_COMM_PORT))
+        print('Enter a command: get / get <file> / send / send <file> / exit')
         while True:
             userInput = input('>>> ')
             validInput=True
             cmd = userInput.upper()
             if cmd[0:3] == 'GET':
-                handleGet(controlSocket, userInput)
+                filename=cmd[3:].strip()
+                handleGet(controlSocket, filename)
             elif cmd[0:4] == 'SEND':
-                handleSend(controlSocket, userInput)
+                filename=cmd[4:].strip()
+                handleSend(controlSocket, filename)
             elif cmd == 'EXIT':
                 print('exit called.')
                 break
@@ -86,15 +84,13 @@ def userInputLoop(ip):
     finally:
         controlSocket.close()
 
-def handleGet(controlSocket, cmd):
+def handleGet(controlSocket, filename):
     listenSocket = utils.createTcpSocket(utils.PORT_X)
     listenSocket.listen(1)
     packet=''
-    filename=cmd[3:].strip()
     if not filename:
         utils.sendCmdPacket(controlSocket, utils.GETALL)
     else:
-        filename=cmd[3:].strip()
         utils.sendCmdPacket(controlSocket, utils.GET, filename)
 
     dataSocket, serverIpPort = listenSocket.accept()
@@ -113,8 +109,7 @@ def handleGet(controlSocket, cmd):
     dataSocket.close()
     listenSocket.close()
 
-def handleSend(controlSocket, cmd):
-    filename=cmd[4:].strip()
+def handleSend(controlSocket, filename):
     if not filename:
         print('  '.join(os.listdir('./files')))
     elif not os.path.isfile('./files/' + filename):

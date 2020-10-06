@@ -29,15 +29,11 @@ Function: main
 returns: void
 arguments: void
 """
-HELP_CMD='type dir to list files, exit to shutdown server'
 
 def main():
-    setup_server()
-
-def setup_server():
     listenSocket = utils.createTcpSocket(utils.SERVER_COMM_PORT)
     listenSocket.listen(5)                           
-    print('Server started listening on port', utils.SERVER_COMM_PORT);
+    print('Server started listening on port', utils.SERVER_COMM_PORT,'ctrl+c to exit');
     try:
         while True:
             controlSocket, clientIpPort = listenSocket.accept()

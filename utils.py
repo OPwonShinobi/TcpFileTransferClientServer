@@ -19,7 +19,6 @@ user calls the program to exit.
 Functions: 
     startTerminal() : void
     waitForUserInput() : void
-    printWelcomePrompt(firstRun=True) : void
     continuousRead() : void
 
 Date: Oct 1 2020
@@ -41,32 +40,6 @@ CMDS=('GETALL','GET','SEND')
 NOT_FOUND='/404/'
 FOUND='/200/'
 BUFFER_SIZE=8192
-
-# Function: printWelcomePrompt
-# Designer: Alex Xia
-# Programmer: Alex Xia
-# Date: Oct 1 2020
-# Arguments: firstRun - boolean which determines if 
-#              it's user's first time running application
-# 
-# Prints pseudo-UI user instructions specific to if user has or hasn't start
-# completed a gps connection during life of program.
-
-def printWelcomePrompt(firstRun):
-    if firstRun:
-        print("*{:*<70}*".format("*"))
-        print("* {:<69}*".format("A dumb GPS terminal program."))
-        print("* {:<69}*".format("Enter 'start' to start reading from your GPS"))
-        print("* {:<69}*".format("Enter 'exit' to exit this application"))
-        print("* {:<69}*".format("Or, press the hotkey 'Ctrl+c' to stop a running connection."))
-        print("*{:*<70}*".format("*"))
-    else:
-        print("*{:*<70}*".format("*"))
-        print("* {:<69}*".format("connection ended."))
-        print("* {:<69}*".format("Enter 'start' to restart reading from your GPS"))
-        print("* {:<69}*".format("Enter 'exit' to exit this application"))
-        print("* {:<69}*".format("Or, press the hotkey 'Ctrl+c' to stop a running connection."))
-        print("*{:*<70}*".format("*"))
 
 
 def createTcpSocket(bindPort=None):
