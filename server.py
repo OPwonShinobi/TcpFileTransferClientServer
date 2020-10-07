@@ -1,35 +1,63 @@
-# from utils import startTerminal
 import os
 import utils
 import traceback
 """
-Source: client.py
-This is a terminal client for linux OS's, to transfer files across a local network
+------------------------------------------------------------------------------------------------------
+SOURCE FILE: server.py - serrver application
 
-On load, the program will continuously scan and validate input.
-If the user enters "start", program will enter a continous read mode, 
-continuously printing out data snapshots from the GPS dongle.
+PROGRAM: Tcp File Transfer Client Server
 
-At any time, the user can stop the printing by hitting "ctrl+c" in the terminal.
-This stops the controlSocket with the dongle, and brings the program back to its starting state;
-the user is once again prompted for either a "start" or a "exit".
+DATE: Oct 1, 2020
 
-On receiving user input to exit, the program will terminate.
+DESIGNER: Junyin Xia
 
-Functions: main
+PROGRAMMER: Junyin Xia
 
-Date: Oct 1 2020
-Designer: Alex Xia
-Programmer: Alex Xia   
+FUNCTIONS:
+    void main (void)
+    void handleGetAll(socket : dataSocket)
+    void handleGet(socket : dataSocket, string : filename)
+    void handleSend(socket : dataSocket, string : filename)
 
+NOTES:
+    This is a terminal-based fileshare server that handle client requests to transfer files of all sizes 
+    both ways across a local network using TCP. On start, the server program will listen on port 7005 for clients
+    Once a client connects, it continuously read and execute commands from the client.
+    
+    Two channels are used:
+        control channel - created when a client connection is accepted, client sends commands thru this channel
+            Runs between clientIp:OS port <-> serverIp:7005
+
+        data channel - created after client issues command through control channel. the server establishes a new connection on port 7006
+            on this channel to transfer file data. Runs between clientIp:8888 <-> serverIp:7006
+
+    At any time, the user can terminate the server by hitting 'ctrl+c' (This also cleans up any sockets)
+-------------------------------------------------------------------------------------------------------
 """
 
 """
-Function: main
-returns: void
-arguments: void
-"""
+----------------------------------------------------------------------------------------------
+FUNCTION main
 
+DATE: Oct 1 2020
+
+DESIGNER: Junyin Xia
+
+PROGRAMMER: Junyin Xia
+
+INTERFACE: def main():
+
+ARGUMENTS: void
+    
+RETURNS: void
+
+NOTES:
+Entry point of the server application. Main function creates the listening socket, and runs a foreverloop to 
+handle client requests. It also prints client statuses.
+As this is simple server, only 1 client will be handled at a time. The first client needs to disconnect before server loop
+will accept any new connections. 
+----------------------------------------------------------------------------------------------
+"""
 def main():
     listenSocket = utils.createTcpSocket(utils.SERVER_COMM_PORT)
     listenSocket.listen(5)                           
@@ -70,10 +98,56 @@ def main():
     finally:
         listenSocket.close()
 
+"""
+----------------------------------------------------------------------------------------------
+FUNCTION handleGetAll
+
+DATE: Oct 1 2020
+
+DESIGNER: Junyin Xia
+
+PROGRAMMER: Junyin Xia
+
+INTERFACE: def handleGetAll(dataSocket):
+
+ARGUMENTS: 
+    socket dataSocket : tcp socket opened on data channel
+    
+RETURNS: void
+
+NOTES:
+    Handles getall requests sent from clients.
+    Function reads the list of files in files dir, and sends it back to client.
+----------------------------------------------------------------------------------------------
+"""
 def handleGetAll(dataSocket):
     filenames = '  '.join(os.listdir('./files'))
     utils.sendDataPacket(dataSocket,filenames)
 
+"""
+----------------------------------------------------------------------------------------------
+FUNCTION handleGet
+
+DATE: Oct 1 2020
+
+DESIGNER: Junyin Xia
+
+PROGRAMMER: Junyin Xia
+
+INTERFACE: def handleGet(dataSocket, filename):
+
+ARGUMENTS: 
+    socket dataSocket : tcp socket opened on data channel
+    string filename : file that client wants server to send back
+    
+RETURNS: void
+
+NOTES:
+    Handles get file requests sent from clients.
+    If a requested file isnt found on server, a NOT_FOUND message is returned to the client
+    Otherwise, a FOUND message + the file bytes are returned.
+----------------------------------------------------------------------------------------------
+"""
 def handleGet(dataSocket, filename):
     if not os.path.isfile('./files/' + filename):
         utils.sendDataPacket(dataSocket, utils.NOT_FOUND)
@@ -81,6 +155,30 @@ def handleGet(dataSocket, filename):
         utils.sendDataPacket(dataSocket, utils.FOUND)
         utils.sendFile(dataSocket, filename)
 
+"""
+----------------------------------------------------------------------------------------------
+FUNCTION handleSend
+
+DATE: Oct 1 2020
+
+DESIGNER: Junyin Xia
+
+PROGRAMMER: Junyin Xia
+
+INTERFACE: def handleSend(dataSocket, filename):
+
+ARGUMENTS: 
+    socket dataSocket : tcp socket opened on data channel
+    string filename : file that client wants to send to server.
+    
+RETURNS: void
+
+NOTES:
+    Handles send file requests sent from clients.
+    Reads file bytes with helper function and saves it locally, similar to what happens on client
+    for GET requests
+----------------------------------------------------------------------------------------------
+"""
 def handleSend(dataSocket, filename):
     utils.recvFile(dataSocket, filename)
 
